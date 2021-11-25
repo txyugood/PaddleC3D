@@ -78,7 +78,14 @@ if __name__ == '__main__':
     iters_per_epoch = len(train_loader)
     val_loader = paddle.io.DataLoader(val_dataset,
                                       batch_size=batch_size, shuffle=False, drop_last=False, return_list=True)
-    lr = paddle.optimizer.lr.MultiStepDecay(learning_rate=1e-3, milestones=[20, 40], gamma=0.1)
+
+    learning_rate = paddle.optimizer.lr.CosineAnnealingDecay(learning_rate=1e-3, T_max=45*iters_per_epoch - 300)
+    lr = paddle.optimizer.lr.LinearWarmup(
+        learning_rate=learning_rate,
+        warmup_steps=300,
+        start_lr=0,
+        end_lr=1e-3)
+    # lr = paddle.optimizer.lr.MultiStepDecay(learning_rate=1e-3, milestones=[20, 40], gamma=0.1)
     grad_clip = paddle.nn.ClipGradByNorm(40)
     optimizer = paddle.optimizer.SGD(learning_rate=lr, weight_decay=5e-4, parameters=model.parameters(), grad_clip=grad_clip)
 
@@ -105,7 +112,7 @@ if __name__ == '__main__':
             loss.backward()
             optimizer.step()
             model.clear_gradients()
-
+            lr.step()
             log_vars = outputs['log_vars']
             total_loss += log_vars['loss']
             total_acc += log_vars['top1_acc']
@@ -127,7 +134,6 @@ if __name__ == '__main__':
                 reader_cost_averager.reset()
                 batch_cost_averager.reset()
             batch_start = time.time()
-        lr.step()
 
         model.eval()
         results = []
