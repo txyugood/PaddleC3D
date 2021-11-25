@@ -74,8 +74,6 @@ if __name__ == '__main__':
     lr = paddle.optimizer.lr.MultiStepDecay(learning_rate=1.25e-4, milestones=[20, 40], gamma=0.1)
     optimizer = paddle.optimizer.SGD(learning_rate=lr, weight_decay=5e-4, parameters=model.parameters())
 
-    avg_loss = 0.0
-    avg_acc = 0.0
     max_epochs = 45
     epoch = 0
     log_iters = 1
@@ -87,6 +85,8 @@ if __name__ == '__main__':
     batch_start = time.time()
     best_accuracy = 0.0
     while epoch < max_epochs:
+        total_loss = 0.0
+        total_acc = 0.0
         model.train()
         for batch_id, data in enumerate(train_loader):
             reader_cost_averager.record(time.time() - batch_start)
@@ -99,14 +99,14 @@ if __name__ == '__main__':
             model.clear_gradients()
 
             log_vars = outputs['log_vars']
-            avg_loss += log_vars['loss']
-            avg_acc += log_vars['top1_acc']
+            total_loss += log_vars['loss']
+            total_acc += log_vars['top1_acc']
 
             batch_cost_averager.record(
                 time.time() - batch_start, num_samples=batch_size)
             if iter % log_iters == 0:
-                avg_loss /= (batch_id + 1)
-                avg_acc /= (batch_id + 1)
+                avg_loss = total_loss / (batch_id + 1)
+                avg_acc = total_acc / (batch_id + 1)
                 remain_iters = iters - iter
                 avg_train_batch_cost = batch_cost_averager.get_average()
                 avg_train_reader_cost = reader_cost_averager.get_average()
@@ -119,21 +119,18 @@ if __name__ == '__main__':
                 reader_cost_averager.reset()
                 batch_cost_averager.reset()
             batch_start = time.time()
-
-        avg_loss = 0.0
-        avg_acc = 0.0
         lr.step()
 
-        val_avg_loss = 0.0
-        val_avg_acc = 0.0
+        total_val_avg_loss = 0.0
+        total_val_avg_acc = 0.0
         for batch_id, data in enumerate(val_loader):
             with paddle.no_grad():
                 outputs = model.val_step(data, optimizer)
                 log_vars = outputs['log_vars']
-                val_avg_loss += log_vars['loss']
-                val_avg_acc += log_vars['top1_acc']
-                val_avg_loss /= (batch_id + 1)
-                val_avg_acc /= (batch_id + 1)
+                total_val_avg_loss += log_vars['loss']
+                total_val_avg_acc += log_vars['top1_acc']
+                val_avg_loss = total_val_avg_loss / (batch_id + 1)
+                val_avg_acc = total_val_avg_acc / (batch_id + 1)
                 print("[EVAL] epoch={}, batch_id={}, loss={:.6f},acc={:.3f}".format(epoch, batch_id + 1, val_avg_loss,
                                                                                     val_avg_acc))
         if val_avg_acc > best_accuracy:
