@@ -32,7 +32,7 @@ class Recognizer3D(BaseRecognizer):
         testing and gradcam."""
         batches = imgs.shape[0]
         num_segs = imgs.shape[1]
-        imgs = imgs.reshape((-1, ) + imgs.shape[2:])
+        imgs = imgs.reshape([-1] + imgs.shape[2:])
 
         if self.max_testing_views is not None:
             total_views = imgs.shape[0]

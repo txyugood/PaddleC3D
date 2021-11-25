@@ -121,20 +121,22 @@ if __name__ == '__main__':
             batch_start = time.time()
         lr.step()
 
+        model.eval()
+        results = []
         total_val_avg_loss = 0.0
         total_val_avg_acc = 0.0
         for batch_id, data in enumerate(val_loader):
             with paddle.no_grad():
-                outputs = model.val_step(data, optimizer)
-                log_vars = outputs['log_vars']
-                total_val_avg_loss += log_vars['loss']
-                total_val_avg_acc += log_vars['top1_acc']
-                val_avg_loss = total_val_avg_loss / (batch_id + 1)
-                val_avg_acc = total_val_avg_acc / (batch_id + 1)
-                print("[EVAL] epoch={}, batch_id={}, loss={:.6f},acc={:.3f}".format(epoch, batch_id + 1, val_avg_loss,
-                                                                                    val_avg_acc))
-        if val_avg_acc > best_accuracy:
-            best_accuracy = val_avg_acc
+                # outputs = model.val_step(data, optimizer)
+                imgs = data['imgs']
+                label = data['label']
+                result = model(imgs, label, return_loss=False)
+            results.extend(result)
+        print(f"[EVAL] epoch={epoch}")
+        key_score = val_dataset.evaluate(results, metrics=['top_k_accuracy', 'mean_class_accuracy'])
+
+        if key_score['top1_acc'] > best_accuracy:
+            best_accuracy = key_score['top1_acc']
             current_save_dir = os.path.join("output", 'best_model')
             if not os.path.exists(current_save_dir):
                 os.makedirs(current_save_dir)

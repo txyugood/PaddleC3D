@@ -38,7 +38,7 @@ class BaseRecognizer(nn.Layer):
         self.cls_head = cls_head
 
         self.train_cfg = train_cfg
-        self.test_cfg = test_cfg
+        self.test_cfg = dict(average_clips='score')
 
         # aux_info is the list of tensor names beyond 'imgs' and 'label' which
         # will be used in train_step and val_step, data_batch should contain
@@ -121,12 +121,12 @@ class BaseRecognizer(nn.Layer):
             return cls_score
 
         batch_size = cls_score.shape[0]
-        cls_score = cls_score.view(batch_size // num_segs, num_segs, -1)
+        cls_score = cls_score.reshape([batch_size // num_segs, num_segs, -1])
 
         if average_clips == 'prob':
             cls_score = F.softmax(cls_score, dim=2).mean(dim=1)
         elif average_clips == 'score':
-            cls_score = cls_score.mean(dim=1)
+            cls_score = cls_score.mean(axis=1)
 
         return cls_score
 
