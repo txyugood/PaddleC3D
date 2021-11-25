@@ -116,12 +116,12 @@ if __name__ == '__main__':
                     "[TRAIN] epoch={}, batch_id={}, loss={:.6f}, lr={:.6f},acc={:.3f} ETA {}"
                         .format(epoch, batch_id + 1,
                                 avg_loss, optimizer.get_lr(), avg_acc, eta))
-                avg_loss = 0.0
-                avg_acc = 0.0
-                avg_pose_acc = 0.0
                 reader_cost_averager.reset()
                 batch_cost_averager.reset()
             batch_start = time.time()
+
+        avg_loss = 0.0
+        avg_acc = 0.0
         lr.step()
 
         val_avg_loss = 0.0
