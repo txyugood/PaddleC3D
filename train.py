@@ -23,6 +23,13 @@ def parse_args():
         type=str,
         default='/Users/alex/baidu/mmaction2/data/ucf101/')
 
+    parser.add_argument(
+        '--pretrained',
+        dest='pretrained',
+        help='The pretrained of model',
+        type=str,
+        default='/Users/alex/Desktop/c3d.pdparams')
+
     return parser.parse_args()
 
 if __name__ == '__main__':
@@ -30,7 +37,7 @@ if __name__ == '__main__':
     tranforms = [
         SampleFrames(clip_len=16, frame_interval=1, num_clips=1),
         RawFrameDecode(),
-        Resize(scale=(127, 171)),
+        Resize(scale=(128, 171)),
         RandomCrop(size=112),
         Flip(flip_ratio=0.5),
         Normalize(mean=[104, 117, 128], std=[1, 1, 1], to_bgr=False),
@@ -43,7 +50,7 @@ if __name__ == '__main__':
     val_tranforms = [
         SampleFrames(clip_len=16, frame_interval=1, num_clips=1, test_mode=True),
         RawFrameDecode(),
-        Resize(scale=(127, 171)),
+        Resize(scale=(128, 171)),
         CenterCrop(crop_size=112),
         Normalize(mean=[104, 117, 128], std=[1, 1, 1], to_bgr=False),
         FormatShape(input_format='NCTHW'),
@@ -56,7 +63,7 @@ if __name__ == '__main__':
     backbone = C3D(dropout_ratio=0.5, init_std=0.005)
     head = I3DHead(num_classes=101, in_channels=4096, spatial_type=None, dropout_ratio=0.5, init_std=0.01)
     model = Recognizer3D(backbone=backbone, cls_head=head)
-    load_pretrained_model(model, '/Users/alex/Desktop/c3d.pdparams')
+    load_pretrained_model(model, args.pretrained)
 
     batch_size = 30
     train_loader = paddle.io.DataLoader(
@@ -71,12 +78,13 @@ if __name__ == '__main__':
     iters_per_epoch = len(train_loader)
     val_loader = paddle.io.DataLoader(val_dataset,
                                       batch_size=batch_size, shuffle=False, drop_last=False, return_list=True)
-    lr = paddle.optimizer.lr.MultiStepDecay(learning_rate=1.25e-4, milestones=[20, 40], gamma=0.1)
-    optimizer = paddle.optimizer.SGD(learning_rate=lr, weight_decay=5e-4, parameters=model.parameters())
+    lr = paddle.optimizer.lr.MultiStepDecay(learning_rate=1e-3, milestones=[20, 40], gamma=0.1)
+    grad_clip = paddle.nn.ClipGradByNorm(40)
+    optimizer = paddle.optimizer.SGD(learning_rate=lr, weight_decay=5e-4, parameters=model.parameters(), grad_clip=grad_clip)
 
     max_epochs = 45
     epoch = 0
-    log_iters = 1
+    log_iters = 10
     reader_cost_averager = TimeAverager()
     batch_cost_averager = TimeAverager()
 

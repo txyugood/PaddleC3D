@@ -121,7 +121,9 @@ class I3DHead(BaseHead):
             self.dropout = nn.Dropout(p=self.dropout_ratio)
         else:
             self.dropout = None
-        self.fc_cls = nn.Linear(self.in_channels, self.num_classes)
+        self.fc_cls = nn.Linear(self.in_channels, self.num_classes,
+                                weight_attr=nn.initializer.Normal(mean=0, std=self.init_std),
+                                bias_attr=nn.initializer.Constant(0))
 
         if self.spatial_type == 'avg':
             # use `nn.AdaptiveAvgPool3d` to adaptively match the in_channels.
