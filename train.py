@@ -58,7 +58,6 @@ if __name__ == '__main__':
     model = Recognizer3D(backbone=backbone, cls_head=head)
     load_pretrained_model(model, '/Users/alex/Desktop/c3d.pdparams')
 
-
     batch_size = 30
     train_loader = paddle.io.DataLoader(
         dataset,
@@ -71,7 +70,7 @@ if __name__ == '__main__':
 
     iters_per_epoch = len(train_loader)
     val_loader = paddle.io.DataLoader(val_dataset,
-                                      batch_size=batch_size // 2, shuffle=False, drop_last=False, return_list=True)
+                                      batch_size=batch_size, shuffle=False, drop_last=False, return_list=True)
     lr = paddle.optimizer.lr.MultiStepDecay(learning_rate=1.25e-4, milestones=[20, 40], gamma=0.1)
     optimizer = paddle.optimizer.SGD(learning_rate=lr, weight_decay=5e-4, parameters=model.parameters())
 
@@ -106,8 +105,8 @@ if __name__ == '__main__':
             batch_cost_averager.record(
                 time.time() - batch_start, num_samples=batch_size)
             if iter % log_iters == 0:
-                avg_loss /= log_iters
-                avg_acc /= log_iters
+                avg_loss /= (batch_id + 1)
+                avg_acc /= (batch_id + 1)
                 remain_iters = iters - iter
                 avg_train_batch_cost = batch_cost_averager.get_average()
                 avg_train_reader_cost = reader_cost_averager.get_average()
@@ -122,6 +121,7 @@ if __name__ == '__main__':
                 avg_pose_acc = 0.0
                 reader_cost_averager.reset()
                 batch_cost_averager.reset()
+            batch_start = time.time()
         lr.step()
 
         val_avg_loss = 0.0
@@ -132,8 +132,8 @@ if __name__ == '__main__':
                 log_vars = outputs['log_vars']
                 val_avg_loss += log_vars['loss']
                 val_avg_acc += log_vars['top1_acc']
-                val_avg_loss /= log_iters
-                val_avg_acc /= log_iters
+                val_avg_loss /= (batch_id + 1)
+                val_avg_acc /= (batch_id + 1)
                 print("[EVAL] epoch={}, batch_id={}, loss={:.6f},acc={:.3f}".format(epoch, batch_id + 1, val_avg_loss,
                                                                                     val_avg_acc))
         if val_avg_acc > best_accuracy:

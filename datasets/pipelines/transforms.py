@@ -633,6 +633,14 @@ class Resize:
             results['scale_factor'] = np.array([1, 1], dtype=np.float32)
         img_h, img_w = results['img_shape']
 
+        if img_h != 240 and img_w != 320:
+            results['imgs'] = self._resize_imgs(results['imgs'], 320,
+                                                240)
+            img_h = 240
+            img_w = 320
+            results['img_shape'] = (img_h, img_w)
+            results['original_shape'] = (img_h, img_w)
+
         if self.keep_ratio:
             new_w, new_h = rescale_size((img_w, img_h), self.scale)
         else:
