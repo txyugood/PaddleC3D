@@ -9,6 +9,7 @@ from models.c3d import C3D
 from models.i3d_head import I3DHead
 from models.recognizer3d import Recognizer3D
 from utils import load_pretrained_model
+from progress_bar import ProgressBar
 
 
 def parse_args():
@@ -48,7 +49,7 @@ if __name__ == '__main__':
     loader = paddle.io.DataLoader(
         dataset,
         num_workers=0,
-        batch_size=30,
+        batch_size=1,
         shuffle=False,
         drop_last=False,
         return_list=True,
@@ -61,12 +62,16 @@ if __name__ == '__main__':
 
     model.eval()
     results = []
+    prog_bar = ProgressBar(len(dataset))
     for batch_id, data in enumerate(loader):
         with paddle.no_grad():
             imgs = data['imgs']
             label = data['label']
             result = model(imgs, label, return_loss=False)
         results.extend(result)
+        batch_size = len(result)
+        for _ in range(batch_size):
+            prog_bar.update()
     eval_res = dataset.evaluate(results, metrics=['top_k_accuracy', 'mean_class_accuracy'])
     for name, val in eval_res.items():
         print(f'{name}: {val:.04f}')
