@@ -156,8 +156,9 @@ def rescale_size(old_size, scale, return_scale=False):
     elif isinstance(scale, tuple):
         max_long_edge = max(scale)
         max_short_edge = min(scale)
-        scale_factor = min(max_long_edge / max(h, w),
-                           max_short_edge / min(h, w))
+        scale_factor = max_short_edge / h
+        # scale_factor = min(max_long_edge / max(h, w),
+        #                    max_short_edge / min(h, w))
     else:
         raise TypeError(
             f'Scale must be a number or tuple of int, but got {type(scale)}')
@@ -633,13 +634,13 @@ class Resize:
             results['scale_factor'] = np.array([1, 1], dtype=np.float32)
         img_h, img_w = results['img_shape']
 
-        if img_h != 240 and img_w != 320:
-            results['imgs'] = self._resize_imgs(results['imgs'], 320,
-                                                240)
-            img_h = 240
-            img_w = 320
-            results['img_shape'] = (img_h, img_w)
-            results['original_shape'] = (img_h, img_w)
+        # if img_h != 240 and img_w != 320:
+        #     results['imgs'] = self._resize_imgs(results['imgs'], 320,
+        #                                         240)
+        #     img_h = 240
+        #     img_w = 320
+        #     results['img_shape'] = (img_h, img_w)
+        #     results['original_shape'] = (img_h, img_w)
 
         if self.keep_ratio:
             new_w, new_h = rescale_size((img_w, img_h), self.scale)
