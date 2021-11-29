@@ -98,7 +98,6 @@ if __name__ == '__main__':
                                       batch_size=batch_size, shuffle=False, drop_last=False, return_list=True)
 
     max_epochs = 100
-    # lr = paddle.optimizer.lr.PolynomialDecay(learning_rate=5e-3, decay_steps=iters_per_epoch * max_epochs)
     if args.last_epoch > -1:
         last_epoch = (args.last_epoch + 1) * iters_per_epoch
     else:
@@ -132,7 +131,7 @@ if __name__ == '__main__':
     iters = iters_per_epoch * max_epochs
     iter = 0
     batch_start = time.time()
-    best_accuracy = 0.7907
+    best_accuracy = 0.0
     while epoch <= max_epochs:
         total_loss = 0.0
         total_acc = 0.0

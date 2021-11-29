@@ -132,7 +132,8 @@ class C3D(nn.Layer):
         self.fc6 = nn.Linear(8192, 4096)
         self.fc7 = nn.Linear(4096, 4096)
 
-        self.relu = nn.ReLU()
+        self.relu6 = nn.ReLU()
+        self.relu7 = nn.ReLU()
         self.dropout = nn.Dropout(p=self.dropout_ratio)
 
     def init_weights(self):
@@ -172,8 +173,8 @@ class C3D(nn.Layer):
         x = self.pool5(x)
 
         x = x.flatten(start_axis=1)
-        x = self.relu(self.fc6(x))
+        x = self.relu6(self.fc6(x))
         x = self.dropout(x)
-        x = self.relu(self.fc7(x))
+        x = self.relu7(self.fc7(x))
 
         return x
