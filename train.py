@@ -30,7 +30,24 @@ def parse_args():
         type=str,
         default='/Users/alex/Desktop/c3d.pdparams')
 
+    parser.add_argument(
+        '--resume',
+        dest='pretrained',
+        help='The path of resume model',
+        type=str,
+        default=None
+    )
+
+    parser.add_argument(
+        '--last_epoch',
+        dest='last_epoch',
+        help='The last epoch of resume model',
+        type=int,
+        default=-1
+    )
+
     return parser.parse_args()
+
 
 if __name__ == '__main__':
     args = parse_args()
@@ -79,17 +96,32 @@ if __name__ == '__main__':
     val_loader = paddle.io.DataLoader(val_dataset,
                                       batch_size=batch_size, shuffle=False, drop_last=False, return_list=True)
 
-    learning_rate = paddle.optimizer.lr.CosineAnnealingDecay(learning_rate=1e-3, T_max=45*iters_per_epoch - 300)
+    max_epochs = 100
+    # lr = paddle.optimizer.lr.PolynomialDecay(learning_rate=5e-3, decay_steps=iters_per_epoch * max_epochs)
+    if args.last_epoch > -1:
+        last_epoch = args.last_epoch * iters_per_epoch
+    else:
+        last_epoch = args.last_epoch
+    learning_rate = paddle.optimizer.lr.CosineAnnealingDecay(learning_rate=1e-3, T_max=max_epochs * iters_per_epoch - 1000, last_epoch=last_epoch)
     lr = paddle.optimizer.lr.LinearWarmup(
         learning_rate=learning_rate,
-        warmup_steps=300,
+        warmup_steps=1000,
         start_lr=0,
-        end_lr=1e-3)
-    # lr = paddle.optimizer.lr.MultiStepDecay(learning_rate=1e-3, milestones=[20, 40], gamma=0.1)
+        end_lr=1e-3,
+        last_epoch=last_epoch)
     grad_clip = paddle.nn.ClipGradByNorm(40)
     optimizer = paddle.optimizer.SGD(learning_rate=lr, weight_decay=5e-4, parameters=model.parameters(), grad_clip=grad_clip)
 
-    max_epochs = 45
+    if args.resume is not None:
+        if os.path.exists(args.resume):
+            resume_model = os.path.normpath(args.resume)
+            ckpt_path = os.path.join(resume_model, 'model.pdparams')
+            para_state_dict = paddle.load(ckpt_path)
+            ckpt_path = os.path.join(resume_model, 'model.pdopt')
+            opti_state_dict = paddle.load(ckpt_path)
+            model.set_state_dict(para_state_dict)
+            optimizer.set_state_dict(opti_state_dict)
+
     epoch = 0
     log_iters = 10
     reader_cost_averager = TimeAverager()
