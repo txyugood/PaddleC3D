@@ -49,7 +49,7 @@ if __name__ == '__main__':
     loader = paddle.io.DataLoader(
         dataset,
         num_workers=0,
-        batch_size=1,
+        batch_size=5,
         shuffle=False,
         drop_last=False,
         return_list=True,

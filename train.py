@@ -28,11 +28,11 @@ def parse_args():
         dest='pretrained',
         help='The pretrained of model',
         type=str,
-        default='/Users/alex/Desktop/c3d.pdparams')
+        default=None)
 
     parser.add_argument(
         '--resume',
-        dest='pretrained',
+        dest='resume',
         help='The path of resume model',
         type=str,
         default=None
@@ -80,7 +80,8 @@ if __name__ == '__main__':
     backbone = C3D(dropout_ratio=0.5, init_std=0.005)
     head = I3DHead(num_classes=101, in_channels=4096, spatial_type=None, dropout_ratio=0.5, init_std=0.01)
     model = Recognizer3D(backbone=backbone, cls_head=head)
-    load_pretrained_model(model, args.pretrained)
+    if args.pretrained is not None:
+        load_pretrained_model(model, args.pretrained)
 
     batch_size = 30
     train_loader = paddle.io.DataLoader(
@@ -99,7 +100,7 @@ if __name__ == '__main__':
     max_epochs = 100
     # lr = paddle.optimizer.lr.PolynomialDecay(learning_rate=5e-3, decay_steps=iters_per_epoch * max_epochs)
     if args.last_epoch > -1:
-        last_epoch = args.last_epoch * iters_per_epoch
+        last_epoch = (args.last_epoch + 1) * iters_per_epoch
     else:
         last_epoch = args.last_epoch
     learning_rate = paddle.optimizer.lr.CosineAnnealingDecay(learning_rate=1e-3, T_max=max_epochs * iters_per_epoch - 1000, last_epoch=last_epoch)
@@ -123,6 +124,7 @@ if __name__ == '__main__':
             optimizer.set_state_dict(opti_state_dict)
 
     epoch = 0
+
     log_iters = 10
     reader_cost_averager = TimeAverager()
     batch_cost_averager = TimeAverager()
@@ -130,8 +132,8 @@ if __name__ == '__main__':
     iters = iters_per_epoch * max_epochs
     iter = 0
     batch_start = time.time()
-    best_accuracy = 0.0
-    while epoch < max_epochs:
+    best_accuracy = 0.7907
+    while epoch <= max_epochs:
         total_loss = 0.0
         total_acc = 0.0
         model.train()
