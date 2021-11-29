@@ -83,7 +83,7 @@ if __name__ == '__main__':
     if args.pretrained is not None:
         load_pretrained_model(model, args.pretrained)
 
-    batch_size = 30
+    batch_size = 32
     train_loader = paddle.io.DataLoader(
         dataset,
         num_workers=0,
@@ -102,10 +102,10 @@ if __name__ == '__main__':
         last_epoch = (args.last_epoch + 1) * iters_per_epoch
     else:
         last_epoch = args.last_epoch
-    learning_rate = paddle.optimizer.lr.CosineAnnealingDecay(learning_rate=1e-3, T_max=max_epochs * iters_per_epoch - 1000, last_epoch=last_epoch)
+    learning_rate = paddle.optimizer.lr.CosineAnnealingDecay(learning_rate=1e-3, T_max=max_epochs * iters_per_epoch - 300, last_epoch=last_epoch)
     lr = paddle.optimizer.lr.LinearWarmup(
         learning_rate=learning_rate,
-        warmup_steps=1000,
+        warmup_steps=300,
         start_lr=0,
         end_lr=1e-3,
         last_epoch=last_epoch)
