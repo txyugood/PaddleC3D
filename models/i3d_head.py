@@ -124,7 +124,7 @@ class I3DHead(BaseHead):
             self.dropout = None
         self.fc_cls = nn.Linear(self.in_channels, self.num_classes,
                                 weight_attr=ParamAttr(initializer=nn.initializer.Normal(mean=0, std=self.init_std), learning_rate=5.0),
-                                bias_attr=ParamAttr(nn.initializer.Constant(0), learning_rate=5.0))
+                                bias_attr=ParamAttr(initializer=nn.initializer.Constant(0), learning_rate=5.0))
 
         if self.spatial_type == 'avg':
             # use `nn.AdaptiveAvgPool3d` to adaptively match the in_channels.

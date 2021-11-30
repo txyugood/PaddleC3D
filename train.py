@@ -46,6 +46,31 @@ def parse_args():
         default=-1
     )
 
+    parser.add_argument(
+        '--batch_size',
+        dest='batch_size',
+        help='batch_size',
+        type=int,
+        default=32
+    )
+
+    parser.add_argument(
+        '--max_epochs',
+        dest='max_epochs',
+        help='max_epochs',
+        type=int,
+        default=100
+    )
+
+    parser.add_argument(
+        '--log_iters',
+        dest='log_iters',
+        help='log_iters',
+        type=int,
+        default=10
+    )
+
+
     return parser.parse_args()
 
 
@@ -83,7 +108,7 @@ if __name__ == '__main__':
     if args.pretrained is not None:
         load_pretrained_model(model, args.pretrained)
 
-    batch_size = 32
+    batch_size = args.batch_size
     train_loader = paddle.io.DataLoader(
         dataset,
         num_workers=0,
@@ -97,12 +122,12 @@ if __name__ == '__main__':
     val_loader = paddle.io.DataLoader(val_dataset,
                                       batch_size=batch_size, shuffle=False, drop_last=False, return_list=True)
 
-    max_epochs = 100
+    max_epochs = args.max_epochs
     if args.last_epoch > -1:
         last_epoch = (args.last_epoch + 1) * iters_per_epoch
     else:
         last_epoch = args.last_epoch
-    learning_rate = paddle.optimizer.lr.CosineAnnealingDecay(learning_rate=1e-3, T_max=max_epochs * iters_per_epoch - 300, last_epoch=last_epoch)
+    learning_rate = paddle.optimizer.lr.CosineAnnealingDecay(learning_rate=1e-3, T_max=max_epochs * iters_per_epoch, last_epoch=last_epoch)
     lr = paddle.optimizer.lr.LinearWarmup(
         learning_rate=learning_rate,
         warmup_steps=300,
@@ -122,16 +147,16 @@ if __name__ == '__main__':
             model.set_state_dict(para_state_dict)
             optimizer.set_state_dict(opti_state_dict)
 
-    epoch = 0
+    epoch = 1
 
-    log_iters = 10
+    log_iters = args.log_iters
     reader_cost_averager = TimeAverager()
     batch_cost_averager = TimeAverager()
 
     iters = iters_per_epoch * max_epochs
     iter = 0
     batch_start = time.time()
-    best_accuracy = 0.0
+    best_accuracy = -0.01
     while epoch <= max_epochs:
         total_loss = 0.0
         total_acc = 0.0

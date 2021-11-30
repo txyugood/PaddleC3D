@@ -176,7 +176,7 @@ class BaseRecognizer(nn.Layer):
 
         return loss, log_vars
 
-    def forward(self, imgs, label=None, return_loss=True, **kwargs):
+    def forward(self, imgs, label=None, return_loss=False, **kwargs):
         """Define the computation performed at every call."""
         if kwargs.get('gradcam', False):
             del kwargs['gradcam']
