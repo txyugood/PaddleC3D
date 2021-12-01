@@ -1,8 +1,10 @@
 import os
 import time
 import argparse
+import random
 
 import paddle
+import numpy as np
 
 from datasets import SampleFrames, RawFrameDecode, Resize, RandomCrop, CenterCrop, Flip, Normalize, FormatShape, Collect
 from datasets import RawframeDataset
@@ -70,12 +72,25 @@ def parse_args():
         default=10
     )
 
+    parser.add_argument(
+        '--seed',
+        dest='seed',
+        help='random seed',
+        type=int,
+        default=1234
+    )
+
 
     return parser.parse_args()
 
 
 if __name__ == '__main__':
     args = parse_args()
+
+    paddle.seed(args.seed)
+    np.random.seed(args.seed)
+    random.seed(args.seed)
+
     tranforms = [
         SampleFrames(clip_len=16, frame_interval=1, num_clips=1),
         RawFrameDecode(),
