@@ -159,7 +159,7 @@ def main():
     files = np.load(files[0])
 
     if args.enable_benchmark:
-        test_video_num = 300
+        test_video_num = 50
         num_warmup = 10
 
         # instantiate auto log
@@ -178,7 +178,8 @@ def main():
             time_keys=['preprocess_time', 'inference_time', 'postprocess_time'],
             warmup=num_warmup)
 
-        files = [args.input_file for _ in range(test_video_num + num_warmup)]
+        files = [files[0:1] for _ in range(test_video_num + num_warmup)]
+        files = np.concatenate(files)
 
     # Inferencing process
     batch_num = args.batch_size
