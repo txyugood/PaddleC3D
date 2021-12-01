@@ -94,7 +94,7 @@ class Recognizer3D(BaseRecognizer):
     def forward_test(self, imgs):
         """Defines the computation performed at every call when evaluation and
         testing."""
-        return self._do_test(imgs).cpu().numpy()
+        return self._do_test(imgs).numpy()
 
     def forward_dummy(self, imgs, softmax=False):
         """Used for computing network FLOPs.

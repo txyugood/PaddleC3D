@@ -43,11 +43,8 @@ def main(args):
         net.set_dict(para_state_dict)
         print('Loaded trained params of model successfully.')
 
-    if args.input_shape is None:
-        shape = [None, 3, None, None, None]
-    else:
-        shape = args.input_shape
 
+    shape = [None, 1, 3, 16, 112, 112]
 
     new_net = net
 

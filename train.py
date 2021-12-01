@@ -186,9 +186,13 @@ if __name__ == '__main__':
                 eta = calculate_eta(remain_iters, avg_train_batch_cost)
 
                 print(
-                    "[TRAIN] epoch={}, batch_id={}, loss={:.6f}, lr={:.6f},acc={:.3f} ETA {}"
+                    "[TRAIN] epoch={}, batch_id={}, loss={:.6f}, lr={:.6f},acc={:.3f},"
+                    "avg_reader_cost: {} sec, avg_batch_cost: {} sec, avg_samples: {}, avg_ips: {} images/sec  ETA {}"
                         .format(epoch, batch_id + 1,
-                                avg_loss, optimizer.get_lr(), avg_acc, eta))
+                                avg_loss, optimizer.get_lr(), avg_acc,
+                                avg_train_reader_cost, avg_train_batch_cost,
+                                batch_size, batch_size / avg_train_batch_cost,
+                                eta))
                 reader_cost_averager.reset()
                 batch_cost_averager.reset()
             batch_start = time.time()

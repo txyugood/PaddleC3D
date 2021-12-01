@@ -121,7 +121,7 @@ class BaseRecognizer(nn.Layer):
             return cls_score
 
         batch_size = cls_score.shape[0]
-        cls_score = cls_score.reshape([batch_size // num_segs, num_segs, -1])
+        cls_score = cls_score.reshape([batch_size // num_segs, num_segs, cls_score.shape[-1]])
 
         if average_clips == 'prob':
             cls_score = F.softmax(cls_score, dim=2).mean(dim=1)
