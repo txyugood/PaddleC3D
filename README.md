@@ -96,6 +96,27 @@ top5_acc: 0.9596
 mean_class_accuracy: 0.8330
 ```
 
+### TIPC基础链条测试
+
+该部分依赖auto_log，需要进行安装，安装方式如下：
+
+auto_log的详细介绍参考[https://github.com/LDOUBLEV/AutoLog](https://github.com/LDOUBLEV/AutoLog)。
+
+```shell
+git clone https://github.com/LDOUBLEV/AutoLog
+pip3 install -r requirements.txt
+python3 setup.py bdist_wheel
+pip3 install ./dist/auto_log-1.0.0-py3-none-any.whl
+```
+
+
+```shell
+bash test_tipc/prepare.sh test_tipc/configs/c3d/train_infer_python.txt 'lite_train_lite_infer'
+
+bash test_tipc/test_train_inference_python.sh test_tipc/configs/c3d/train_infer_python.txt 'lite_trai
+n_lite_infer'
+```
+
 ## 6.代码结构与详细说明
 ```shell
 ├── README.md
