@@ -136,7 +136,18 @@ n_lite_infer'
 │   └── recognizer3d.py # 识别模型框架
 ├── progress_bar.py #进度条工具
 ├── test.py # 评估程序
-├── test_tipc # TIPC 基础链条认证（待补充）
+├── test_tipc # TIPC脚本
+│   ├── README.md
+│   ├── common_func.sh # 通用脚本程序
+│   ├── configs
+│   │   └── c3d
+│   │       └── train_infer_python.txt # 单机单卡配置
+│   ├── data
+│   │   ├── example.npy # 推理用样例数据
+│   │   └── mini_ucf.zip # 训练用小规模数据集
+│   ├── output
+│   ├── prepare.sh # 数据准备脚本
+│   └── test_train_inference_python.sh # 训练推理测试脚本
 ├── timer.py # 时间工具类
 ├── train.log # 训练日志
 ├── train.py # 训练脚本
