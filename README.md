@@ -119,7 +119,7 @@ n_lite_infer'
 
 测试结果如截图所示：
 
-![](https://github.com/txyugood/PaddleC3D/blob/main/test_tipc/data/tipc_result.png?raw=true)
+![](https://github.com/txyugood/PaddleC3D/blob/master/test_tipc/data/tipc_result.png?raw=true)
 
 
 ## 6.代码结构与详细说明
