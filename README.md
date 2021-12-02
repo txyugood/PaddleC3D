@@ -117,6 +117,11 @@ bash test_tipc/test_train_inference_python.sh test_tipc/configs/c3d/train_infer_
 n_lite_infer'
 ```
 
+测试结果如截图所示：
+
+![](https://github.com/txyugood/PaddleC3D/blob/main/test_tipc/data/tipc_result.png?raw=true)
+
+
 ## 6.代码结构与详细说明
 ```shell
 ├── README.md
