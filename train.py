@@ -150,7 +150,7 @@ if __name__ == '__main__':
         end_lr=1e-3,
         last_epoch=last_epoch)
     grad_clip = paddle.nn.ClipGradByNorm(40)
-    optimizer = paddle.optimizer.SGD(learning_rate=lr, weight_decay=5e-4, parameters=model.parameters(), grad_clip=grad_clip)
+    optimizer = paddle.optimizer.Momentum(learning_rate=lr, weight_decay=5e-4, parameters=model.parameters(), grad_clip=grad_clip)
 
     if args.resume is not None:
         if os.path.exists(args.resume):
